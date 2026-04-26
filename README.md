@@ -3,7 +3,7 @@
 > Manage [Claude Code Routines](https://code.claude.com/docs/en/routines) as code. Edit `.md` files, ask Claude to deploy them. No CLI to install, no tokens to manage.
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
-[![Status: v0.1](https://img.shields.io/badge/status-v0.1-orange.svg)](#status)
+[![Status: v0.2](https://img.shields.io/badge/status-v0.2-green.svg)](#status)
 [![Built for Claude Code](https://img.shields.io/badge/built%20for-Claude%20Code-D4A027.svg)](https://code.claude.com)
 
 ## What problem this solves
@@ -82,6 +82,13 @@ If you already have routines on claude.ai:
 
 If you're starting fresh, copy one of the example routines in `routines/` (PR reviewer, alert triage, docs drift) and customize it.
 
+Other things you can ask Claude:
+
+- `validate` — lint every routine against the schema (no API calls)
+- `diff personal/foo.md` — see what's changed vs. the cloud
+- `deploy all` — bulk deploy every routine in `routines/` and `personal/`
+- `run trig_01ABC...` — fire a routine now (works even on `enabled: false` routines)
+
 The full operations reference is at [`docs/reference.md`](docs/reference.md). For migrating existing routines, see [`docs/migration-from-web.md`](docs/migration-from-web.md).
 
 ## Personal vs. shareable routines
@@ -115,11 +122,11 @@ Full risk list: [`docs/superpowers/specs/2026-04-26-claude-routines/09-risks.md`
 
 | | What |
 |---|---|
-| **v0.1 — shipped today (2026-04-26)** | Form A (fork-as-starter): CLAUDE.md + 3 example routines + frontmatter spec. Six operations end-to-end. Round-trip verified empirically. |
-| **v0.2 — next** | `validate` (offline lint), `diff` (semantic local-vs-cloud), bulk operations, `{{include}}` snippets in prompt bodies. |
-| **v0.3+ — later** | `pull --orphans`, multi-account profiles, GitHub-trigger CRUD if Anthropic exposes it. |
+| **v0.1 — shipped 2026-04-26** | Form A (fork-as-starter): CLAUDE.md + 3 example routines + frontmatter spec. Six operations end-to-end (`list`, `get`, `pull`, `create`, `update`, `run`). Round-trip verified empirically. |
+| **v0.2 — shipped 2026-04-26** | `{{include}}` snippets in prompt bodies. `validate` (offline lint). `diff` (semantic local-vs-cloud). `bulk` operations ("deploy all", "deploy `<dir>/`"). |
+| **v0.3+ — later** | `pull --orphans` (find local files whose trigger_id no longer exists in cloud), multi-account profiles, GitHub-trigger CRUD if Anthropic exposes the schema. |
 
-> **Note on v0.2:** earlier roadmap drafts mentioned a Claude Code plugin (`/routine deploy`) — that's been scrapped because it would just re-skin `/schedule`. Real v0.2 work is in features `/schedule` doesn't have.
+> **Note:** an earlier draft roadmap mentioned a Claude Code plugin (`/routine deploy`) — that's been scrapped. It would just re-skin Anthropic's `/schedule` command without adding capability. Real v0.2 work is in features `/schedule` doesn't have because it isn't file-based.
 
 ## License
 
