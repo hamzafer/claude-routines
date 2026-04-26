@@ -1,43 +1,29 @@
 # claude-routines
 
-> Manage [Claude Code Routines](https://code.claude.com/docs/en/routines) as code. Edit `.md` files, ask Claude to deploy them. No CLI to install, no tokens to manage.
+> Manage [Claude Code Routines](https://code.claude.com/docs/en/routines) as code. Edit `.md` files. Ask Claude to deploy them. No CLI, no tokens.
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
-[![Status: v0.2](https://img.shields.io/badge/status-v0.2-green.svg)](#status)
+[![Status: v0.2](https://img.shields.io/badge/status-v0.2-green.svg)](#operations)
 [![Built for Claude Code](https://img.shields.io/badge/built%20for-Claude%20Code-D4A027.svg)](https://code.claude.com)
 
 ![demo](docs/demo.gif)
 
-## What problem this solves
+## Why
 
-Claude Code Routines (research preview, shipped 2026-04-14) let you save Claude Code configurations — prompt + repos + connectors + triggers — that run on Anthropic-managed cloud infrastructure. They're managed via three surfaces: the web UI at [claude.ai/code/routines](https://claude.ai/code/routines), the desktop app, and the CLI's `/schedule` command.
+Anthropic's [Routines](https://code.claude.com/docs/en/routines) (research preview, 2026-04-14) run a saved prompt on a schedule, on GitHub events, or via API. You manage them through the web UI, the desktop app, or `/schedule` in the CLI.
 
-**None of those let you manage routines as code in a repository.** No fork-and-edit. No version history for prompts. No PR review. No shared library across teammates. No bulk operations. No diff between local and cloud.
+**None of those let you keep routines as code.** No fork-and-edit. No version history. No PR review. No bulk ops. No diff between local and cloud.
 
-`claude-routines` fills that gap. Each routine is one `.md` file (YAML frontmatter + prompt body). You edit files, ask Claude in plain English to deploy them, and Claude calls the management API for you using its built-in `RemoteTrigger` skill.
+This repo fills that gap. Each routine = one `.md` file with YAML config + prompt body. Claude reads the file and calls the management API for you.
 
-## Why this if `/schedule` already exists?
+Use `/schedule` for quick conversational changes. Use this when you want to **version, review, share, or bulk-edit**.
 
-`/schedule` is great for conversational create/list/update/run on a single routine. It's not great for:
-
-- Editing a prompt that's 200 lines long (you don't want to dictate 200 lines into a slash command)
-- Versioning prompt changes over time
-- Reviewing a teammate's routine in a PR
-- Bulk-changing all your routines at once
-- Validating a routine offline before deploying
-- Diffing local intent vs. cloud state
-
-This framework is for those cases. It complements `/schedule` — they share the same management API. (Verified empirically. See [the verification record](docs/verification/2026-04-26-routines-api-experiments.md).)
-
-## How it works
-
-A routine is one `.md` file:
+## A routine
 
 ```yaml
 ---
 name: "Daily PR Review"
 cron: "0 9 * * 1-5"          # Mon–Fri, 9am UTC
-enabled: true
 env_id: env_01ABC...
 allowed_tools: [Bash, Read, Edit, Grep, WebFetch]
 sources:
@@ -48,7 +34,7 @@ sources:
 Review every PR opened in the last 24 hours. For each, leave inline comments...
 ```
 
-Then in Claude Code:
+## A session
 
 ```
 > deploy routines/daily-pr-review.md
@@ -57,78 +43,79 @@ Then in Claude Code:
 > list
 trig_01ABC...   Daily PR Review                Mon–Fri 9:00 UTC   enabled
 trig_01XYZ...   Alert Triage Responder         API trigger        enabled
-trig_01PQR...   Weekly Docs Drift Check        Mon 14:00 UTC      enabled
+
+> diff personal/oslo-apartment-hunter.md
+✓ in sync
 
 > run trig_01ABC...
-✓ Started session for "Daily PR Review"
-  https://claude.ai/code/routines/trig_01ABC...
+✓ Started session — https://claude.ai/code/routines/trig_01ABC...
 ```
-
-That's it. Claude reads the `.md` file, builds the API body, fires the right `RemoteTrigger` action, writes any returned `trigger_id` back into your file. Six operations: `list`, `get`, `pull`, `create`, `update`, `run`. (No `delete` — the management API doesn't expose it. Use the web UI.)
 
 ## Quickstart
 
 ```bash
 git clone https://github.com/hamzafer/claude-routines my-routines
 cd my-routines
-./scripts/install-hooks.sh        # one-time: enables the pre-commit safety hook
+./scripts/install-hooks.sh        # enables the pre-commit safety hook
 claude                            # opens Claude Code in this repo
 ```
 
-If you already have routines on claude.ai:
+Then ask Claude:
+
+- `pull` — import existing routines from claude.ai
+- `validate` — lint every routine against the schema
+- `deploy <file>` — push a single routine
+- `deploy all` — bulk deploy every routine
+- `diff <file>` — what's changed vs. the cloud
+- `run <trigger_id>` — fire now
+
+Full reference: [`docs/reference.md`](docs/reference.md). Migrating from the web UI: [`docs/migration-from-web.md`](docs/migration-from-web.md).
+
+## Operations
 
 ```
-> pull
-✓ Wrote 9 routines to routines/
+┌──────────────────────────────────┬─────────────────────────────────────┐
+│            Operation             │               Status                │
+├──────────────────────────────────┼─────────────────────────────────────┤
+│ list, get, pull                  │ ✅ v0.1                             │
+├──────────────────────────────────┼─────────────────────────────────────┤
+│ create, update, run              │ ✅ v0.1                             │
+├──────────────────────────────────┼─────────────────────────────────────┤
+│ {{include}} snippets             │ ✅ v0.2                             │
+├──────────────────────────────────┼─────────────────────────────────────┤
+│ validate                         │ ✅ v0.2                             │
+├──────────────────────────────────┼─────────────────────────────────────┤
+│ diff                             │ ✅ v0.2                             │
+├──────────────────────────────────┼─────────────────────────────────────┤
+│ bulk (deploy all, deploy <dir>/) │ ✅ v0.2                             │
+├──────────────────────────────────┼─────────────────────────────────────┤
+│ dry-run deploy                   │ ✅ v0.2                             │
+├──────────────────────────────────┼─────────────────────────────────────┤
+│ orphans                          │ ✅ v0.2                             │
+├──────────────────────────────────┼─────────────────────────────────────┤
+│ delete                           │ ❌ web UI only (API doesn't expose) │
+├──────────────────────────────────┼─────────────────────────────────────┤
+│ GitHub triggers / API tokens     │ ❌ web UI only                      │
+└──────────────────────────────────┴─────────────────────────────────────┘
 ```
 
-If you're starting fresh, copy one of the example routines in `routines/` (PR reviewer, alert triage, docs drift) and customize it.
+## Personal vs. shareable
 
-Other things you can ask Claude:
+- `routines/` — generic templates. Committed.
+- `personal/` — your real routines. Gitignored. Pre-commit hook blocks accidental staging.
 
-- `validate` — lint every routine against the schema (no API calls)
-- `diff personal/foo.md` — see what's changed vs. the cloud
-- `deploy all` — bulk deploy every routine in `routines/` and `personal/`
-- `run trig_01ABC...` — fire a routine now (works even on `enabled: false` routines)
+Same format, same operations. Both folders work.
 
-The full operations reference is at [`docs/reference.md`](docs/reference.md). For migrating existing routines, see [`docs/migration-from-web.md`](docs/migration-from-web.md).
+## Caveats
 
-## Personal vs. shareable routines
-
-- `routines/` — generic templates anyone can copy. Committed to git.
-- `personal/` — your real routines with specific prompts, cron, env IDs. **Gitignored**, except for `personal/README.md`.
-
-The pre-commit hook in `.githooks/pre-commit` blocks any commit that stages a file under `personal/`. Belt-and-suspenders: even if you `git add -A` carelessly, your private routines stay private.
-
-Both folders use the same format. Operations work on `.md` files in either.
-
-## Important caveats — read before relying on this
-
-This is a community framework, not an Anthropic product.
-
-1. **The management API we use is undocumented.** Only the public `/fire` endpoint is in [Anthropic's official docs](https://code.claude.com/docs/en/routines). The endpoints `claude-routines` calls (`/v1/code/triggers`) are reverse-engineered from Claude Code's in-process `RemoteTrigger` skill. Anthropic may change them without notice.
-
-2. **Anthropic may ship official tooling.** When they do, this repo deprecates gracefully — or layers on top.
-
-3. **Env vars are not real secrets.** Cloud-environment env vars are stored as plain text, visible to anyone with edit access to the environment. Don't put production credentials there until Anthropic ships a real secrets store.
-
-4. **`update` has a real security gotcha.** Sending a partial `job_config` silently expands `allowed_tools` to a 19-tool default set including Bash/Write/Edit/NotebookEdit. `claude-routines` prevents this via mandatory read-modify-write. Anyone calling the API directly with curl should be aware. Details in [`docs/superpowers/specs/2026-04-26-claude-routines/03-update-safety.md`](docs/superpowers/specs/2026-04-26-claude-routines/03-update-safety.md).
-
-5. **No DELETE via API.** Web UI only at [claude.ai/code/routines](https://claude.ai/code/routines).
-
-6. **GitHub event triggers and API tokens are web-UI-only at the management API.** This framework preserves them on round-trip but cannot create or modify them.
+- **The management API is undocumented.** Only `/fire` is in [Anthropic's docs](https://code.claude.com/docs/en/routines). The endpoints we call (`/v1/code/triggers`) are reverse-engineered. They may change.
+- **Anthropic may ship official tooling.** When they do, this deprecates gracefully.
+- **Env vars are not real secrets.** Visible to anyone with edit access on the environment.
+- **`update` has a security gotcha.** A partial `job_config` silently expands `allowed_tools` to a 19-tool default set. We prevent it via mandatory read-modify-write. Anyone calling the API directly should be aware. [Details](docs/superpowers/specs/2026-04-26-claude-routines/03-update-safety.md).
+- **No DELETE via API.** Use the [web UI](https://claude.ai/code/routines).
+- **GitHub triggers / API tokens are web-UI-only.** This framework preserves them on round-trip but can't create or modify them.
 
 Full risk list: [`docs/superpowers/specs/2026-04-26-claude-routines/09-risks.md`](docs/superpowers/specs/2026-04-26-claude-routines/09-risks.md).
-
-## Status
-
-| | What |
-|---|---|
-| **v0.1 — shipped 2026-04-26** | Form A (fork-as-starter): CLAUDE.md + 3 example routines + frontmatter spec. Six operations end-to-end (`list`, `get`, `pull`, `create`, `update`, `run`). Round-trip verified empirically. |
-| **v0.2 — shipped 2026-04-26** | `{{include}}` snippets in prompt bodies. `validate` (offline lint). `diff` (semantic local-vs-cloud). `bulk` operations ("deploy all", "deploy `<dir>/`"). |
-| **v0.3+ — later** | `pull --orphans` (find local files whose trigger_id no longer exists in cloud), multi-account profiles, GitHub-trigger CRUD if Anthropic exposes the schema. |
-
-> **Note:** an earlier draft roadmap mentioned a Claude Code plugin (`/routine deploy`) — that's been scrapped. It would just re-skin Anthropic's `/schedule` command without adding capability. Real v0.2 work is in features `/schedule` doesn't have because it isn't file-based.
 
 ## License
 
@@ -136,4 +123,4 @@ MIT. See [LICENSE](LICENSE).
 
 ## Contributing
 
-PRs welcome — especially if you discover an undocumented API behavior we missed. The empirical verification record is at [`docs/verification/2026-04-26-routines-api-experiments.md`](docs/verification/2026-04-26-routines-api-experiments.md). Add to it.
+PRs welcome. If you find undocumented API behavior we missed, add to [`docs/verification/2026-04-26-routines-api-experiments.md`](docs/verification/2026-04-26-routines-api-experiments.md).
