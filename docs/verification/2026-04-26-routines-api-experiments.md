@@ -1,7 +1,7 @@
 # Routines Management API — Empirical Verification
 
 Date: 2026-04-26
-Account: hamzafer (e93af9cb-5c5a-4b2e-940f-73bcd4ff60f4)
+Account: <redacted>
 Tool: in-process `RemoteTrigger` (Claude Code skill, OAuth handled internally)
 Endpoint base: `https://api.anthropic.com/v1/code/triggers`
 
@@ -308,7 +308,7 @@ The first batch (E1–E9) tested the API mechanics. This batch tests whether eac
 
 ### E10 — GitHub event trigger via API
 
-**Procedure:** `update` with `{"github_triggers": [{"repository": "hamzafer/brain", "event": "pull_request.opened"}]}`.
+**Procedure:** `update` with `{"github_triggers": [{"repository": "your-org/your-repo", "event": "pull_request.opened"}]}`.
 
 **Response:** HTTP 200, but field silently dropped — `github_triggers` does not appear in the response and no related state changed.
 
@@ -340,7 +340,7 @@ The first batch (E1–E9) tested the API mechanics. This batch tests whether eac
 
 ### E13 — `sources` field with `allow_unrestricted_git_push`
 
-**Procedure:** Update T1 with `session_context.sources: [{"git_repository": {"url": "https://github.com/hamzafer/brain", "allow_unrestricted_git_push": false}}]`.
+**Procedure:** Update T1 with `session_context.sources: [{"git_repository": {"url": "https://github.com/your-org/your-repo", "allow_unrestricted_git_push": false}}]`.
 
 **Response:** Field stored, round-trips correctly. `allow_unrestricted_git_push: false` echoes; setting it to `true` would also work (as already seen in Brain Digest).
 
@@ -477,7 +477,7 @@ Full event taxonomy from the UI:
 
 Filter system: UI shows "Add a filter condition" — narrows which events trigger a run. Without filters, "Fires on every matching event — this can consume your routine run limits quickly."
 
-UI also says "Runs as hamzafer3@gmail.com" — identity attribution for actions taken on GitHub during the run.
+UI also says "Runs as <user-email-redacted>" — identity attribution for actions taken on GitHub during the run.
 
 The Claude GitHub App must be installed on the target repo for webhook delivery (UI prompts to install when missing). Doc-confirmed.
 
