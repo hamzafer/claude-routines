@@ -20,6 +20,7 @@ You execute these operations in-process via the `RemoteTrigger` skill that ships
 - **"validate"** with no file → validate every `.md` file under `routines/` and `personal/` (excluding `personal/snippets/` and READMEs). Print a one-line summary per file.
 - **"deploy all"** / "deploy everything in `<dir>`" / similar bulk → see [Bulk operations](#bulk-operations) below.
 - **"diff `<file>`"** or "what's changed in `<file>`" → see [Diff](#diff) below.
+- **"orphans"** or "find orphans" or "list orphans" → list local routine files whose `trigger_id` no longer exists in the cloud (probably deleted via web UI). Pure-local check after a `RemoteTrigger.list`. Print one line per orphan: `<file path> → <trigger_id> (not in cloud)`. End with a count. Don't delete the files — that's the user's call.
 
 ---
 
