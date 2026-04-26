@@ -6,6 +6,8 @@
 [![Status: v0.2](https://img.shields.io/badge/status-v0.2-green.svg)](#status)
 [![Built for Claude Code](https://img.shields.io/badge/built%20for-Claude%20Code-D4A027.svg)](https://code.claude.com)
 
+![demo](docs/demo.gif)
+
 ## What problem this solves
 
 Claude Code Routines (research preview, shipped 2026-04-14) let you save Claude Code configurations — prompt + repos + connectors + triggers — that run on Anthropic-managed cloud infrastructure. They're managed via three surfaces: the web UI at [claude.ai/code/routines](https://claude.ai/code/routines), the desktop app, and the CLI's `/schedule` command.
