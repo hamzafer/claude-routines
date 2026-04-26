@@ -68,11 +68,40 @@ The API does not validate `connector_uuid` — any v4 UUID + name + URL is accep
 ## File layout
 
 ```
-routines/   public-shareable routines (committed)
-personal/   your private routines (gitignored, only personal/README.md committed)
+routines/           public-shareable routines (committed)
+personal/           your private routines (gitignored)
+snippets/           public reusable prompt fragments (committed)
+personal/snippets/  your private prompt fragments (gitignored)
 ```
 
-Both folders use the same format. Operations work on `.md` files in either.
+`routines/` and `personal/` use the same format — operations work on `.md` files in either.
+
+## Snippet includes
+
+A routine's prompt body can include shared fragments via the `{{include path}}` directive on a line by itself:
+
+```yaml
+---
+name: "Daily Digest"
+cron: "0 8 * * *"
+...
+---
+
+Do the daily digest stuff. ...
+
+{{include snippets/session-link.md}}
+```
+
+`claude-routines` expands includes client-side at deploy time. The cloud sees the fully-expanded prompt. The local file stays compact.
+
+**Caveats:**
+- Path is relative to the repo root.
+- Snippet files have no YAML frontmatter — they're pure prompt text.
+- Includes don't nest (a snippet can't include another snippet).
+- Missing snippet = deploy aborts before any API call.
+- **Pull does not re-snippet.** After `pull`, the include reference is gone — you'll see the expanded text instead. Treat includes as a write-side optimization.
+
+See [`snippets/README.md`](../snippets/README.md) for examples.
 
 ## Cron tips
 

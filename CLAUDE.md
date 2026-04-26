@@ -145,6 +145,32 @@ Returns the trigger object. After success, tell the user: "Started session for <
 
 When the user says "deploy this" while looking at a file in either folder, both work.
 
+## Snippet includes
+
+A routine's prompt body may contain include directives that expand to the contents of another file. Expand these client-side before sending to the API:
+
+**Syntax** — a line containing only `{{include <path>}}`:
+
+```
+... rest of prompt ...
+
+{{include snippets/session-link.md}}
+```
+
+**Path resolution** — relative to the repo root.
+- `{{include snippets/foo.md}}` → `<repo>/snippets/foo.md`
+- `{{include personal/snippets/foo.md}}` → `<repo>/personal/snippets/foo.md`
+
+**Expansion rules:**
+
+1. On `create` and `update`, before building the API body, scan the prompt body for `{{include <path>}}` directives.
+2. For each, read the file at the path and substitute the directive line with the file's contents (verbatim, no frontmatter — snippet files don't have any).
+3. If a path doesn't resolve, abort the deploy and tell the user which include is broken.
+4. Do not nest includes. A snippet file shall not contain its own `{{include}}` directives. If you encounter one, abort with an error.
+5. The cloud sees the fully-expanded prompt. Includes are a write-side feature only.
+
+**Pull caveat:** when running `pull` or `get`, write the expanded body verbatim — do NOT try to re-detect snippets. The user accepts that pull-after-deploy loses snippet references; this is documented in `snippets/README.md`.
+
 ---
 
 ## Critical rules
