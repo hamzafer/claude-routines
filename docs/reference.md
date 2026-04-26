@@ -32,6 +32,8 @@ The markdown body (after the closing `---`) is the routine's saved prompt, sent 
 | `run <trigger_id>` | Fire the routine now. Works even on `enabled: false` routines. |
 | `validate <file>` | Lint a file against the schema rules. Pure-local — no API call. Use before `deploy`. |
 | `validate` | Lint every file in `routines/` and `personal/`. |
+| `diff <file>` | Show what's changed between the local file and its cloud state. Read-only. |
+| `diff all` | Diff every file. Summary line at the end. |
 | `deploy all` / `deploy <dir>/` | Bulk deploy. Validates each file first; skips invalid ones. |
 
 There is no `delete`. Delete routines via the web UI at [claude.ai/code/routines](https://claude.ai/code/routines).

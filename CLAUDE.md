@@ -19,6 +19,7 @@ You execute these operations in-process via the `RemoteTrigger` skill that ships
 - **"validate `<file>`"** or "lint `<file>`" → check the file against the rules in [Validate](#validate) below. Don't call the API. Report errors with line numbers when possible.
 - **"validate"** with no file → validate every `.md` file under `routines/` and `personal/` (excluding `personal/snippets/` and READMEs). Print a one-line summary per file.
 - **"deploy all"** / "deploy everything in `<dir>`" / similar bulk → see [Bulk operations](#bulk-operations) below.
+- **"diff `<file>`"** or "what's changed in `<file>`" → see [Diff](#diff) below.
 
 ---
 
@@ -193,6 +194,55 @@ Output format:
 ```
 
 When called without a file argument, validate every routine under `routines/` and `personal/` (skip READMEs and `snippets/`). Final line: `N files OK · M files with errors · W warnings`.
+
+## Diff
+
+The `diff <file>` operation compares a local routine file against its cloud state, field by field. It's read-only — no API writes.
+
+**Procedure:**
+
+1. Parse the file's frontmatter and body. Expand `{{include}}` directives in the body (same as deploy).
+2. Read the file's `trigger_id`. If absent, abort with "no trigger_id in frontmatter — use `create` first."
+3. `RemoteTrigger.get` to fetch live state.
+4. Compare each tracked field. Skip read-only fields entirely (`created_at`, `updated_at`, `next_run_at`, `creator`, `ended_reason`, `api_token_hint`, `persist_session`, `enabled_plugins`, `extra_marketplaces`, `outcomes`).
+
+**Tracked fields (compare and report differences):**
+
+- `name` — string equality.
+- `cron_expression` / `run_once_at` — string equality. Note: when the file has `cron`, the cloud's `run_once_at` should be empty string and vice versa; compare the populated one.
+- `enabled` — bool equality.
+- `job_config.ccr.environment_id` — string equality.
+- `job_config.ccr.session_context.model` — string equality. Treat absent (file omits) and empty/missing (cloud omits) as equal.
+- `job_config.ccr.session_context.allowed_tools` — set comparison. Report added/removed individually.
+- `job_config.ccr.session_context.sources` — list of objects; compare by `url`. For matching urls, compare `allow_unrestricted_git_push`.
+- `mcp_connections` — list of objects; compare by `connector_uuid`. Show added/removed entries.
+- Prompt body — compare the file's expanded body against `job_config.ccr.events[0].data.message.content`. If different, show a unified diff (or first ±5 lines of difference) plus character-count delta.
+
+**Output format:**
+
+```
+trig_01PXv5ejzp1t25HvsFtQ8cKi  Norway Daily News Digest
+
+  cron:           "0 7 * * *"  →  "0 8 * * *"
+  allowed_tools:  +Bash  -KillBash
+  prompt:         3 lines changed (+42 chars)
+
+  ---     -      Send a Norway news digest with ONLY NEW stories...
+  +++     +      Send a Norway news digest from the last 24 hours...
+
+3 fields differ
+```
+
+If everything matches:
+
+```
+trig_01PXv5ejzp1t25HvsFtQ8cKi  Norway Daily News Digest
+✓ in sync
+```
+
+**Whitespace handling:** trailing whitespace and trailing newlines on the prompt body are sometimes added/stripped by Anthropic's normalization. Report these as a special note: `prompt: trailing whitespace differs (semantically identical)`. Don't show this as a hard difference — most users don't care.
+
+**Bulk diff:** "diff all" iterates `routines/` and `personal/`. Print the per-file output, then a summary `N in sync · M differ · K errors`.
 
 ## Bulk operations
 
