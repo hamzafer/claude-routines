@@ -1,40 +1,68 @@
 # claude-routines
 
-**Manage Claude Code Routines as code.** Fork this repo, edit `.md` files, ask Claude to deploy them. No CLI to install, no tokens to manage — Claude Code IS the CLI.
+> Manage [Claude Code Routines](https://code.claude.com/docs/en/routines) as code. Edit `.md` files, ask Claude to deploy them. No CLI to install, no tokens to manage.
 
-## What this is
+[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
+[![Status: v0.1](https://img.shields.io/badge/status-v0.1-orange.svg)](#status)
+[![Built for Claude Code](https://img.shields.io/badge/built%20for-Claude%20Code-D4A027.svg)](https://code.claude.com)
 
-[Claude Code Routines](https://code.claude.com/docs/en/routines) (research preview, shipped 2026-04-14) let you save Claude Code configurations — prompt + repos + connectors + triggers — that run on Anthropic-managed cloud infrastructure. They're managed via the web UI at [claude.ai/code/routines](https://claude.ai/code/routines), the desktop app, or the CLI's `/schedule` command.
+## What problem this solves
 
-What none of those surfaces support: managing routines **as code in a repository**. No fork-and-edit, no version history for prompts, no PR review, no shared library. This repo fills that gap.
+Claude Code Routines (research preview, shipped 2026-04-14) let you save Claude Code configurations — prompt + repos + connectors + triggers — that run on Anthropic-managed cloud infrastructure. They're managed via three surfaces: the web UI at [claude.ai/code/routines](https://claude.ai/code/routines), the desktop app, and the CLI's `/schedule` command.
 
-> **Why not another "claude-routines" repo?** Existing repos with this name are prompt-template libraries (copy-paste flow) or wrappers around the public `/fire` endpoint. None manage the routine resource itself. This one does — it CRUDs the routine via Claude Code's in-process `RemoteTrigger` skill.
+**None of those let you manage routines as code in a repository.** No fork-and-edit. No version history for prompts. No PR review. No shared library across teammates. No bulk operations. No diff between local and cloud.
+
+`claude-routines` fills that gap. Each routine is one `.md` file (YAML frontmatter + prompt body). You edit files, ask Claude in plain English to deploy them, and Claude calls the management API for you using its built-in `RemoteTrigger` skill.
+
+## Why this if `/schedule` already exists?
+
+`/schedule` is great for conversational create/list/update/run on a single routine. It's not great for:
+
+- Editing a prompt that's 200 lines long (you don't want to dictate 200 lines into a slash command)
+- Versioning prompt changes over time
+- Reviewing a teammate's routine in a PR
+- Bulk-changing all your routines at once
+- Validating a routine offline before deploying
+- Diffing local intent vs. cloud state
+
+This framework is for those cases. It complements `/schedule` — they share the same management API. (Verified empirically. See [the verification record](docs/verification/2026-04-26-routines-api-experiments.md).)
 
 ## How it works
 
-A routine is one `.md` file: YAML frontmatter for the config, markdown body for the prompt. Claude Code reads the file and calls the management API.
+A routine is one `.md` file:
 
 ```yaml
 ---
 name: "Daily PR Review"
 cron: "0 9 * * 1-5"          # Mon–Fri, 9am UTC
+enabled: true
 env_id: env_01ABC...
 allowed_tools: [Bash, Read, Edit, Grep, WebFetch]
 sources:
-  - url: https://github.com/your/repo
+  - url: https://github.com/your-org/your-repo
     allow_unrestricted_git_push: false
 ---
 
-Review every PR opened in the last 24h. For each, leave inline comments...
+Review every PR opened in the last 24 hours. For each, leave inline comments...
 ```
 
 Then in Claude Code:
 
 ```
 > deploy routines/daily-pr-review.md
+✓ Created trig_01ABC... — Daily PR Review (Mon–Fri 9:00 UTC)
+
+> list
+trig_01ABC...   Daily PR Review                Mon–Fri 9:00 UTC   enabled
+trig_01XYZ...   Alert Triage Responder         API trigger        enabled
+trig_01PQR...   Weekly Docs Drift Check        Mon 14:00 UTC      enabled
+
+> run trig_01ABC...
+✓ Started session for "Daily PR Review"
+  https://claude.ai/code/routines/trig_01ABC...
 ```
 
-Claude reads the file, builds the API body, fires `RemoteTrigger.create`. On the next push, presence of `trigger_id` in the frontmatter makes it an update.
+That's it. Claude reads the `.md` file, builds the API body, fires the right `RemoteTrigger` action, writes any returned `trigger_id` back into your file. Six operations: `list`, `get`, `pull`, `create`, `update`, `run`. (No `delete` — the management API doesn't expose it. Use the web UI.)
 
 ## Quickstart
 
@@ -45,49 +73,53 @@ cd my-routines
 claude                            # opens Claude Code in this repo
 ```
 
-Then ask Claude:
+If you already have routines on claude.ai:
 
-- `pull` — import all your existing routines from claude.ai into `routines/`
-- `deploy routines/daily-pr-review.md` — push a routine to the cloud
-- `list` — show all routines on your account
-- `run trig_01ABC...` — fire a routine now
+```
+> pull
+✓ Wrote 9 routines to routines/
+```
 
-The full operations reference is at [`docs/reference.md`](docs/reference.md).
+If you're starting fresh, copy one of the example routines in `routines/` (PR reviewer, alert triage, docs drift) and customize it.
+
+The full operations reference is at [`docs/reference.md`](docs/reference.md). For migrating existing routines, see [`docs/migration-from-web.md`](docs/migration-from-web.md).
 
 ## Personal vs. shareable routines
 
 - `routines/` — generic templates anyone can copy. Committed to git.
-- `personal/` — your real routines with your specific prompts/cron/env IDs. **Gitignored**, except for `personal/README.md`.
+- `personal/` — your real routines with specific prompts, cron, env IDs. **Gitignored**, except for `personal/README.md`.
 
-The pre-commit hook (`.githooks/pre-commit`) blocks any commit that stages a file under `personal/` (other than its README). Install it once with `./scripts/install-hooks.sh`.
+The pre-commit hook in `.githooks/pre-commit` blocks any commit that stages a file under `personal/`. Belt-and-suspenders: even if you `git add -A` carelessly, your private routines stay private.
 
-If you want a single repo for everything, that's it. If you want a fully separate private repo for personal routines, fork this one as private and edit `routines/` directly.
+Both folders use the same format. Operations work on `.md` files in either.
 
-## Important caveats
+## Important caveats — read before relying on this
 
-This is a community framework, not an Anthropic product. Read these before relying on it:
+This is a community framework, not an Anthropic product.
 
-1. **The management API we use is undocumented.** Only the public `/fire` endpoint is in [Anthropic's official docs](https://code.claude.com/docs/en/routines). The endpoints `claude-routines` calls (`/v1/code/triggers`) are reverse-engineered from Claude Code's in-process `RemoteTrigger` skill. Anthropic may change them.
+1. **The management API we use is undocumented.** Only the public `/fire` endpoint is in [Anthropic's official docs](https://code.claude.com/docs/en/routines). The endpoints `claude-routines` calls (`/v1/code/triggers`) are reverse-engineered from Claude Code's in-process `RemoteTrigger` skill. Anthropic may change them without notice.
 
-2. **Anthropic may ship official tooling.** When they do, this repo deprecates gracefully.
+2. **Anthropic may ship official tooling.** When they do, this repo deprecates gracefully — or layers on top.
 
-3. **Env vars are not real secrets.** Cloud-environment env vars are stored as plain text and visible to anyone with edit access to the environment. Don't put production credentials there.
+3. **Env vars are not real secrets.** Cloud-environment env vars are stored as plain text, visible to anyone with edit access to the environment. Don't put production credentials there until Anthropic ships a real secrets store.
 
-4. **`update` has a security gotcha** — sending a partial `job_config` silently expands `allowed_tools` to a maximally-permissive 19-tool default set including Bash/Write/Edit. `claude-routines` solves this via mandatory read-modify-write. Anyone calling the API directly with curl should be aware.
+4. **`update` has a real security gotcha.** Sending a partial `job_config` silently expands `allowed_tools` to a 19-tool default set including Bash/Write/Edit/NotebookEdit. `claude-routines` prevents this via mandatory read-modify-write. Anyone calling the API directly with curl should be aware. Details in [`docs/superpowers/specs/2026-04-26-claude-routines/03-update-safety.md`](docs/superpowers/specs/2026-04-26-claude-routines/03-update-safety.md).
 
-5. **No DELETE via API.** The management API doesn't expose deletion. Delete routines via the web UI at [claude.ai/code/routines](https://claude.ai/code/routines).
+5. **No DELETE via API.** Web UI only at [claude.ai/code/routines](https://claude.ai/code/routines).
 
-6. **GitHub event triggers and API tokens are web-UI-only.** `claude-routines` preserves them on round-trip but cannot create or modify them.
+6. **GitHub event triggers and API tokens are web-UI-only at the management API.** This framework preserves them on round-trip but cannot create or modify them.
 
-Full risk list in [`docs/superpowers/specs/2026-04-26-claude-routines/09-risks.md`](docs/superpowers/specs/2026-04-26-claude-routines/09-risks.md).
+Full risk list: [`docs/superpowers/specs/2026-04-26-claude-routines/09-risks.md`](docs/superpowers/specs/2026-04-26-claude-routines/09-risks.md).
 
 ## Status
 
-**v0.1**: Form A (fork-as-starter), six operations, three example routines. Today, 2026-04-26.
+| | What |
+|---|---|
+| **v0.1 — shipped today (2026-04-26)** | Form A (fork-as-starter): CLAUDE.md + 3 example routines + frontmatter spec. Six operations end-to-end. Round-trip verified empirically. |
+| **v0.2 — next** | `validate` (offline lint), `diff` (semantic local-vs-cloud), bulk operations, `{{include}}` snippets in prompt bodies. |
+| **v0.3+ — later** | `pull --orphans`, multi-account profiles, GitHub-trigger CRUD if Anthropic exposes it. |
 
-**v0.2**: Form C plugin (`claude plugins add claude-routines`, slash commands). Soon.
-
-**v0.3+**: validate, diff, list --orphans. Later.
+> **Note on v0.2:** earlier roadmap drafts mentioned a Claude Code plugin (`/routine deploy`) — that's been scrapped because it would just re-skin `/schedule`. Real v0.2 work is in features `/schedule` doesn't have.
 
 ## License
 

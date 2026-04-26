@@ -12,11 +12,9 @@ Community framework, not a competitor to Anthropic. The README leads with that. 
 
 ## Architecture
 
-Two consumption forms, shipped in stages.
+Single consumption form: **fork-as-starter**.
 
-### Form A — fork-as-starter (v0.1)
-
-User clones the repo. The repo's `CLAUDE.md` instructs Claude Code on how to read frontmatter, build API call bodies, and invoke the in-process `RemoteTrigger` skill. **No executable code** — `claude-routines` v0.1 is a CLAUDE.md plus example routines plus a frontmatter spec. Claude Code is the CLI.
+User clones the repo. The repo's `CLAUDE.md` instructs Claude Code on how to read frontmatter, build API call bodies, and invoke the in-process `RemoteTrigger` skill. **No executable code** — `claude-routines` is a CLAUDE.md plus example routines plus a frontmatter spec. Claude Code is the CLI.
 
 ```
 git clone https://github.com/hamzafer/claude-routines my-routines
@@ -27,9 +25,7 @@ claude
 > run trig_01ABC...
 ```
 
-### Form C — Claude Code plugin (v0.2)
-
-Same file convention, packaged as a plugin (`.claude-plugin/plugin.json` + `commands/list.md`, `commands/deploy.md`). Slash commands invoke the same instructions that live in form A's CLAUDE.md.
+> **Note:** earlier drafts proposed a v0.2 "Claude Code plugin" form (slash commands like `/routine deploy`). Dropped because it would just re-skin Anthropic's `/schedule` command without adding capability. CLAUDE.md handles file-based operations conversationally; no slash command layer needed. See [roadmap](08-roadmap.md).
 
 ## Auth
 

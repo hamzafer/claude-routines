@@ -20,9 +20,9 @@ Calling these out so the README and CLAUDE.md don't promise them.
 - **GitHub App installation** — required for GitHub event webhooks. Github-side concern, not routine config.
 - **Secrets/env-var management** — there is no real secrets store. Env vars in cloud envs are visible to anyone with edit access. Document in README; don't pretend otherwise.
 
-## Form C (plugin)
+## Form C (plugin) — DROPPED
 
-`.claude-plugin/plugin.json`, slash commands like `/routine deploy <file>`. v0.2.
+`.claude-plugin/plugin.json` with slash commands like `/routine deploy`. Removed from the roadmap. Reason: it would re-skin Anthropic's `/schedule` command without adding capability, which contradicts the "not competing with Anthropic" positioning.
 
 ## Body-level features
 

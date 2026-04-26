@@ -13,17 +13,21 @@
 - MIT license
 - Public on GitHub at `hamzafer/claude-routines`
 
-## v0.2
+## v0.2 (revised — plugin form dropped)
 
-- **Form C plugin** — `.claude-plugin/plugin.json` + `commands/` so `claude plugins add claude-routines` exposes `/routine list`, `/routine deploy <file>`, etc.
-- **`diff` command** — semantic compare local vs cloud (Anthropic normalizes some fields, so byte-wise diff is noisy).
-- **Snippets/includes** in prompt bodies (e.g., the Telegram-card block we want to share across routines).
+The Claude Code plugin form (`/routine deploy`, `/routine list`, etc.) was dropped from v0.2. Reason: it would mostly re-skin `/schedule`, which Anthropic already ships. That's exactly the "competing with Anthropic" thing this project explicitly avoids. CLAUDE.md handles file-based operations conversationally — no slash command layer needed.
+
+Real v0.2 ships features `/schedule` doesn't have because it isn't file-based:
+
+- **`validate`** — offline lint before deploy: cron 1h-min, mutual exclusion of cron/run_once_at, required fields, model enum check, allowed_tools sanity. Surface errors locally instead of round-tripping for an HTTP 400.
+- **`diff` command** — semantic compare local vs cloud (Anthropic normalizes some fields, so byte-wise diff is noisy). Field-aware comparison.
+- **Bulk operations** — "set enabled:false on every routine in personal/" or "change cron to 0 6 * * * on every routine matching <pattern>." Concretely useful for users with many similar routines.
+- **`{{include}}` snippets** in prompt bodies — share common blocks (Telegram delivery, error-surfacing rules, common-source clones) across routines. Updates to the snippet propagate to every routine on next deploy.
 - More example routines.
 
 ## v0.3+
 
-- **`validate`** — offline lint (cron 1h-min, mutual exclusion, required fields, error before round-trip).
-- **`list --orphans`** — find local files whose `trigger_id` no longer exists in cloud.
+- **`pull --orphans`** — find local files whose `trigger_id` no longer exists in cloud (e.g., deleted via web UI).
 - **API-trigger token management** — if Anthropic exposes the schema.
 - **GitHub-trigger CRUD** — if Anthropic exposes the schema.
 - **Multi-account / profile support**.
