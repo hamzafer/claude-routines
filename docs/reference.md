@@ -30,6 +30,9 @@ The markdown body (after the closing `---`) is the routine's saved prompt, sent 
 | `create <file>` | Strict create. Fails if `trigger_id` exists in the frontmatter. |
 | `update <file>` | Strict update. Fails if `trigger_id` is missing. Always read-modify-write. |
 | `run <trigger_id>` | Fire the routine now. Works even on `enabled: false` routines. |
+| `validate <file>` | Lint a file against the schema rules. Pure-local — no API call. Use before `deploy`. |
+| `validate` | Lint every file in `routines/` and `personal/`. |
+| `deploy all` / `deploy <dir>/` | Bulk deploy. Validates each file first; skips invalid ones. |
 
 There is no `delete`. Delete routines via the web UI at [claude.ai/code/routines](https://claude.ai/code/routines).
 
@@ -102,6 +105,23 @@ Do the daily digest stuff. ...
 - **Pull does not re-snippet.** After `pull`, the include reference is gone — you'll see the expanded text instead. Treat includes as a write-side optimization.
 
 See [`snippets/README.md`](../snippets/README.md) for examples.
+
+## Validation rules
+
+`validate` checks each file against:
+
+- **Frontmatter parses** as valid YAML.
+- **Required:** `name`, `env_id`, and exactly one of `cron`/`run_once_at`.
+- **Cron:** must be UTC, minimum 1-hour interval. `*/30 * * * *` is rejected because the API rejects it (`cron interval too short`).
+- **`run_once_at`:** RFC3339 UTC, future timestamp. Past timestamps are warned but accepted.
+- **`model`** (if set): one of `claude-opus-4-7`, `claude-opus-4-7[1m]`, `claude-sonnet-4-6`, `claude-haiku-4-5`.
+- **`allowed_tools`:** non-empty list. Warns loudly if all the common write-tools are present (`Bash` + `Write` + `Edit` + `NotebookEdit`) — that's the silent-default-expansion footprint and probably means you forgot to trim.
+- **`sources`:** each entry has `url` starting `https://github.com/` and optional `allow_unrestricted_git_push: bool`.
+- **`mcp_connections`:** each entry has lowercase v4 `connector_uuid`, `name`, `url`.
+- **Snippet includes** in the body: each `{{include <path>}}` resolves to a real file. Snippet files don't nest other includes.
+- **Prompt body** is non-empty.
+
+Errors abort `deploy`; warnings don't.
 
 ## Cron tips
 
