@@ -36,6 +36,7 @@ The markdown body (after the closing `---`) is the routine's saved prompt, sent 
 | `diff all` | Diff every file. Summary line at the end. |
 | `deploy all` / `deploy <dir>/` | Bulk deploy. Validates each file first; skips invalid ones. |
 | `orphans` | List local files whose `trigger_id` no longer exists in cloud (probably deleted via web UI). |
+| `dry-run deploy <file>` | Build the API body but don't send it. Pretty-prints the body and lists which fields would change. Pairs with `diff` for pre-deploy confidence. |
 
 There is no `delete`. Delete routines via the web UI at [claude.ai/code/routines](https://claude.ai/code/routines).
 

@@ -21,6 +21,7 @@ You execute these operations in-process via the `RemoteTrigger` skill that ships
 - **"deploy all"** / "deploy everything in `<dir>`" / similar bulk → see [Bulk operations](#bulk-operations) below.
 - **"diff `<file>`"** or "what's changed in `<file>`" → see [Diff](#diff) below.
 - **"orphans"** or "find orphans" or "list orphans" → list local routine files whose `trigger_id` no longer exists in the cloud (probably deleted via web UI). Pure-local check after a `RemoteTrigger.list`. Print one line per orphan: `<file path> → <trigger_id> (not in cloud)`. End with a count. Don't delete the files — that's the user's call.
+- **"dry-run deploy `<file>`"** / "preview deploy `<file>`" / "what would `deploy <file>` send" → build the API body exactly as `deploy` would (including read-modify-write merge for an update), but **do not call the API**. Show the user the body that would be sent (formatted JSON, pretty-printed) plus a one-line summary of which operation (`create` vs `update`) and which fields would change vs. live state. Useful pairs: dry-run + diff for full pre-deploy confidence.
 
 ---
 
@@ -262,6 +263,8 @@ When the user says things like "deploy all routines that use `<snippet>`" or "de
 **Output format for bulk:** one line per file with status. Stop the entire bulk on the first hard failure (e.g. an HTTP 5xx); 4xx-per-file errors are reported and we continue.
 
 **Always validate before deploying in a bulk.** A single bad file should not abort the whole bulk; just report and skip.
+
+**Bulk dry-run** is supported via "dry-run deploy all" or "preview deploy all" — same fan-out, but no API calls; per-file output shows which operation each would be (`create` vs `update`) and which fields would change.
 
 ## Snippet includes
 
