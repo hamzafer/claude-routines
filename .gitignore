@@ -8,6 +8,10 @@ personal/*
 .claude/
 routines-paste.md
 
+# Demo GIF generated locally via `vhs docs/demo.tape` — commit when good
+# (uncomment the next line if you want to keep it untracked)
+# docs/demo.gif
+
 # OS
 .DS_Store
 Thumbs.db
