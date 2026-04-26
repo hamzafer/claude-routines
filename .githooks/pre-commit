@@ -1,0 +1,23 @@
+#!/usr/bin/env bash
+# claude-routines pre-commit hook
+# Blocks any commit that stages files under personal/ (except personal/README.md and personal/.gitkeep).
+# Bypass: git commit --no-verify
+
+set -euo pipefail
+
+staged=$(git diff --cached --name-only --diff-filter=ACM)
+
+# Filter for personal/ paths, excluding the allowed files
+violations=$(printf '%s\n' "$staged" | grep -E '^personal/' | grep -vE '^personal/(README\.md|\.gitkeep)$' || true)
+
+if [[ -n "$violations" ]]; then
+  printf '\n\033[31mERROR: pre-commit hook blocking commit\033[0m\n' >&2
+  printf 'These staged files live under personal/, which is gitignored:\n\n' >&2
+  printf '  %s\n' $violations >&2
+  printf '\nPersonal routines should not be committed to a public claude-routines fork.\n' >&2
+  printf 'If this is intentional (you are maintaining a private fork), bypass with:\n\n' >&2
+  printf '  git commit --no-verify\n\n' >&2
+  exit 1
+fi
+
+exit 0

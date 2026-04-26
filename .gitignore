@@ -1,0 +1,23 @@
+# Personal routines — local-only
+personal/*
+!personal/README.md
+!personal/.gitkeep
+
+# Tooling artifacts
+.playwright-mcp/
+.claude/
+routines-paste.md
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Editors
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Logs / temp
+*.log
+*.tmp
