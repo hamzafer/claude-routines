@@ -6,9 +6,8 @@
 #
 # Output lands at docs/demo.gif (referenced from README.md).
 #
-# This drives a real `claude` session in the repo. Output is authentic.
-# Each Wait line waits for a regex match before the next command fires,
-# so the timing self-adjusts to Claude's actual response speed.
+# Drives a real `claude` session in the repo. Output is authentic.
+# Sleep durations are tuned generously to give Claude time to respond.
 
 Output docs/demo.gif
 
@@ -17,47 +16,47 @@ Set FontSize 14
 Set Width 1280
 Set Height 760
 Set Theme "Dracula"
-Set TypingSpeed 30ms
+Set TypingSpeed 40ms
 Set Padding 20
-Set PlaybackSpeed 1.2
 
-# Hidden setup — cd into the repo and clear the screen before recording starts
+# Hidden setup — cd into the repo and clear the screen
 Hide
 Type "cd ~/developer/ai/playground/claude-routines"
 Enter
 Type "clear"
 Enter
+Sleep 500ms
 Show
 
-# 1. Show the file shape
+# 1. Show the routine library
 Type "ls personal/"
 Sleep 400ms
 Enter
 Sleep 2s
 
-# 2. Show a real routine file
-Type "head -20 personal/oslo-apartment-hunter.md"
+# 2. Show a real routine — frontmatter + first lines of prompt
+Type "head -25 personal/oslo-apartment-hunter.md"
 Sleep 400ms
 Enter
-Sleep 3s
+Sleep 4s
 
-# 3. Drop into Claude Code and run the operations
+# 3. Drop into Claude Code in this repo
 Type "claude"
 Enter
-Wait />/
+Sleep 6s
 
-# Validate everything
+# 4. Validate every routine — pure local lint, fast
 Type "validate"
 Sleep 300ms
 Enter
-Wait /OK/
+Sleep 18s
 
-# Diff a single routine to show in-sync state
+# 5. Diff a single routine vs cloud — proves local matches what's deployed
 Type "diff personal/oslo-apartment-hunter.md"
 Sleep 300ms
 Enter
-Wait /sync/
+Sleep 18s
 
-# Exit cleanly
+# 6. Exit Claude
 Ctrl+D
 Sleep 1s
