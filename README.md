@@ -8,6 +8,10 @@
 
 ![demo](docs/demo.gif)
 
+> [!TIP]
+> 🎬 **See every feature in action → [`docs/features.md`](docs/features.md)**
+> Ten GIFs walking through `pull`, `deploy`, `validate`, `diff`, `{{include}}` snippets, bulk operations, `dry-run`, `list`, `run`, and `orphans`.
+
 ## Why
 
 Anthropic's [Routines](https://code.claude.com/docs/en/routines) (research preview, 2026-04-14) run a saved prompt on a schedule, on GitHub events, or via API. You manage them through the web UI, the desktop app, or `/schedule` in the CLI.
@@ -70,8 +74,6 @@ Then ask Claude:
 - `run <trigger_id>` — fire now
 
 Full reference: [`docs/reference.md`](docs/reference.md). Migrating from the web UI: [`docs/migration-from-web.md`](docs/migration-from-web.md).
-
-→ **Full feature reference with GIFs: [`docs/features.md`](docs/features.md)**
 
 ## Personal vs. shareable
 
