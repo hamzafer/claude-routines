@@ -3,7 +3,7 @@
 > Manage [Claude Code Routines](https://code.claude.com/docs/en/routines) as code. Edit `.md` files. Ask Claude to deploy them. No CLI, no tokens.
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
-[![Status: v0.2](https://img.shields.io/badge/status-v0.2-green.svg)](#operations)
+[![Release: v0.2.0](https://img.shields.io/badge/release-v0.2.0-green.svg)](https://github.com/hamzafer/claude-routines/releases/tag/v0.2.0)
 [![Built for Claude Code](https://img.shields.io/badge/built%20for-Claude%20Code-D4A027.svg)](https://code.claude.com)
 
 ![demo](docs/demo.gif)
