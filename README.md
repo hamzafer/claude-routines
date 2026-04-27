@@ -16,6 +16,8 @@
 
 Anthropic's [Routines](https://code.claude.com/docs/en/routines) (research preview, 2026-04-14) run a saved prompt on a schedule, on GitHub events, or via API. You manage them through the web UI, the desktop app, or `/schedule` in the CLI.
 
+I wanted to migrate my [openclaw](https://github.com/openclaw/openclaw) onto it.
+
 **None of those let you keep routines as code.** No fork-and-edit. No version history. No PR review. No bulk ops. No diff between local and cloud.
 
 This repo fills that gap. Each routine = one `.md` file with YAML config + prompt body. Claude reads the file and calls the management API for you.
