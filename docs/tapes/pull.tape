@@ -16,27 +16,28 @@ Enter
 Sleep 500ms
 Show
 
-# 1. Show empty personal/ (only README + snippets dir)
-Type "ls personal/"
-Sleep 400ms
-Enter
-Sleep 3s
-
-# 2. Drop into Claude and pull everything from the cloud
+# Drop into Claude Code
 Type "claude --dangerously-skip-permissions"
 Enter
 Sleep 5s
 
+# Show empty personal/ via shell escape (everything stays inside claude)
+Type "!ls personal/"
+Sleep 300ms
+Enter
+Sleep 3s
+
+# Pull all routines from the cloud
 Type "pull"
 Sleep 200ms
 Enter
 Sleep 100s
 
-Ctrl+D
-Sleep 1s
-
-# 3. Show the populated personal/
-Type "ls personal/"
-Sleep 400ms
+# Show populated personal/ via shell escape
+Type "!ls personal/"
+Sleep 300ms
 Enter
 Sleep 3s
+
+Ctrl+D
+Sleep 1s
