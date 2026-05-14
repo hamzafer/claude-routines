@@ -91,6 +91,20 @@ The `examples/` folder has three reference routines you can copy and adapt:
 
 These are not installed by `npx skills add`. They live in the repo for browsing and copying.
 
+## Legacy documentation
+
+The `docs/` folder preserves the original reference material from when this project shipped as a clone-and-fork template (pre-skills version):
+
+- `docs/CLAUDE.md` is the original operating manual (now distributed across the `skills/` folder, kept for reference).
+- `docs/reference.md`, `docs/features.md`, `docs/migration-from-web.md` are user-facing guides.
+- `docs/gifs/` and `docs/tapes/` are the recorded `vhs` demos showing each operation. The flows shown there reflect the old "clone the repo" workflow and will need re-recording for the new `npx skills add` model; kept for now as a snapshot of how things looked.
+- `docs/superpowers/specs/2026-04-26-claude-routines/` is the original design spec and rationale.
+- `docs/verification/2026-04-26-routines-api-experiments.md` is the empirical record of every API behavior we depend on.
+- `docs/snippets/` shows the optional `{{include <path>}}` snippet feature still supported by the `create` and `update` skills.
+- `docs/CHANGELOG.md` is the pre-skills release log.
+
+If you're using the skills, you don't need any of this. If you're contributing or want to understand the design choices, start with `docs/superpowers/specs/2026-04-26-claude-routines/00-overview.md`.
+
 ## Caveats
 
 - **The management API is undocumented.** Only `/fire` is in [Anthropic's docs](https://code.claude.com/docs/en/routines). The endpoints these skills call (`/v1/code/triggers`) are reverse-engineered. They may change.
