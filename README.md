@@ -60,7 +60,9 @@ Each activates by intent (`"validate this file"`) or by name (`/routines:validat
 
 ## Caveats
 
-The management API isn't public. Endpoints (`/v1/code/triggers`) are reverse-engineered and may change. There's no DELETE; use the [web UI](https://claude.ai/code/routines). The `update` skill enforces read-modify-write because a partial `job_config` silently expands `allowed_tools` to a 19-tool default. If you call the API directly, beware.
+- **Reverse-engineered.** The management API isn't public. Endpoints (`/v1/code/triggers`) may change.
+- **No DELETE.** Use the [web UI](https://claude.ai/code/routines).
+- **`update` enforces read-modify-write.** A partial `job_config` silently expands `allowed_tools` to a 19-tool default. If you call the API directly, beware.
 
 ## Also
 
