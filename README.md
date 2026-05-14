@@ -19,18 +19,18 @@ That's it. Type `/routines:list` or just say "list my routines".
 
 ## See it
 
-```
-> deploy routines/daily-pr-review.md
+```console
+$ deploy routines/daily-pr-review.md
 Created trig_01ABC... (Daily PR Review, weekdays 09:00 UTC)
 
-> list
+$ list
 trig_01ABC...   Daily PR Review                weekdays 09:00 UTC   enabled
 trig_01XYZ...   Alert Triage Responder         API trigger          enabled
 
-> diff personal/oslo-apartment-hunter.md
+$ diff personal/oslo-apartment-hunter.md
 in sync
 
-> run trig_01ABC...
+$ run trig_01ABC...
 Started session: https://claude.ai/code/routines/trig_01ABC...
 ```
 
