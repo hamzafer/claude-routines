@@ -1,6 +1,6 @@
 # claude-routines
 
-Manage [Claude Code Routines](https://code.claude.com/docs/en/routines) as code. Edit `.md` files, ask Claude to deploy them.
+> Cron jobs for Claude Code, managed as `.md` files. Edit, commit, ask Claude to deploy.
 
 [![skills.sh](https://skills.sh/b/hamzafer/claude-routines)](https://skills.sh/hamzafer/claude-routines)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
@@ -8,39 +8,16 @@ Manage [Claude Code Routines](https://code.claude.com/docs/en/routines) as code.
 
 ## Install
 
-### Claude Code (recommended)
+In any Claude Code session:
 
-```bash
+```
 /plugin marketplace add hamzafer/claude-routines
 /plugin install routines@claude-routines
 ```
 
-Skills activate as `/routines:list`, `/routines:deploy`, etc. Natural language also works ("list my routines", "deploy this file", "diff routines/foo.md").
+That's it. Type `/routines:list` or just say "list my routines".
 
-### Cross-agent via skills.sh
-
-```bash
-npx skills add hamzafer/claude-routines -g
-```
-
-Cursor, Copilot, Gemini, etc. Skills install with flat names (no `routines:` prefix).
-
-## A routine
-
-```yaml
----
-name: "Daily PR Review"
-cron: "0 9 * * 1-5"
-env_id: env_01ABC...
-allowed_tools: [Bash, Read, Edit, Grep, WebFetch]
-sources:
-  - url: https://github.com/your-org/your-repo
----
-
-Review every PR opened in the last 24 hours. Leave inline comments...
-```
-
-## A session
+## See it
 
 ```
 > deploy routines/daily-pr-review.md
@@ -57,32 +34,42 @@ in sync
 Started session: https://claude.ai/code/routines/trig_01ABC...
 ```
 
+A routine is one `.md` file. Frontmatter sets schedule and permissions; body is the prompt that runs.
+
+```yaml
+---
+name: "Daily PR Review"
+cron: "0 9 * * 1-5"
+env_id: env_01ABC...
+allowed_tools: [Bash, Read, Edit, Grep, WebFetch]
+sources:
+  - url: https://github.com/your-org/your-repo
+---
+
+Review every PR opened in the last 24 hours. Leave inline comments...
+```
+
 ## Skills
 
-| Skill | What it does |
-|---|---|
-| `deploy` | Smart router: create or update based on `trigger_id` |
-| `create` | Strict create (no `trigger_id` in file) |
-| `update` | Strict update with read-modify-write safety |
-| `list` | Show every routine on your account |
-| `get` | Fetch one routine to a local `.md` |
-| `pull` | Fetch every routine to local `.md` files |
-| `run` | Fire a routine now, bypassing schedule |
-| `validate` | Lint a file against the schema |
-| `diff` | Compare local file to cloud state |
-| `dry-run` | Preview the API body without sending |
-| `orphans` | Local files whose `trigger_id` is gone from cloud |
-| `bulk` | Any op across many files |
-| `delete` | Redirects to the web UI (no DELETE API) |
+**Read state.** `list`, `get`, `pull`, `diff`, `orphans`
+**Write changes.** `deploy` (auto-routes), `create`, `update` (read-modify-write safe)
+**Pre-flight.** `validate`, `dry-run`
+**Other.** `run`, `bulk`, `delete`
+
+Each activates by intent (`"validate this file"`) or by name (`/routines:validate <file>`).
 
 ## Caveats
 
-- **The management API is undocumented.** Endpoints (`/v1/code/triggers`) are reverse-engineered; may change.
-- **No DELETE.** Use the [web UI](https://claude.ai/code/routines).
-- **`update` safety gotcha.** A partial `job_config` silently expands `allowed_tools` to a 19-tool default. The `update` skill prevents this via mandatory read-modify-write; anyone calling the API directly should be aware.
+The management API isn't public. Endpoints (`/v1/code/triggers`) are reverse-engineered and may change. There's no DELETE; use the [web UI](https://claude.ai/code/routines). The `update` skill enforces read-modify-write because a partial `job_config` silently expands `allowed_tools` to a 19-tool default. If you call the API directly, beware.
 
-Reference docs, design specs, and demo recordings preserved under `docs/`. Three reference routines under `examples/`.
+## Also
 
-## License & contributing
+- [`examples/`](examples): three reference routines to copy from
+- [`docs/`](docs): design specs, demo recordings, API verification notes
+- [`skills/<name>/SKILL.md`](skills): the actual skill bodies
 
-MIT. PRs welcome. Skills live in `skills/<name>/SKILL.md`.
+Cross-agent install via `npx skills add hamzafer/claude-routines` is supported for [skills.sh](https://skills.sh/hamzafer/claude-routines) discoverability, but the skills call Claude Code's `RemoteTrigger` tool at runtime, so they only function in Claude Code.
+
+## License
+
+MIT. PRs welcome.
