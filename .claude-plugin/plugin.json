@@ -1,0 +1,19 @@
+{
+  "name": "routines",
+  "description": "Manage Claude Code Routines as code. Edit .md files, ask Claude to deploy them.",
+  "version": "1.0.0",
+  "author": {
+    "name": "Hamza Zafar"
+  },
+  "homepage": "https://github.com/hamzafer/claude-routines",
+  "repository": "https://github.com/hamzafer/claude-routines",
+  "license": "MIT",
+  "keywords": [
+    "routines",
+    "scheduler",
+    "cron",
+    "claude-code",
+    "automation",
+    "agents"
+  ]
+}

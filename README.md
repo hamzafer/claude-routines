@@ -8,11 +8,27 @@ Manage [Claude Code Routines](https://code.claude.com/docs/en/routines) as code.
 
 ## Install
 
+### Claude Code (recommended)
+
+Skills activate as `routines:<name>` (e.g. `/routines:list`, `/routines:deploy`).
+
+```bash
+# 1. Register this repo as a marketplace
+/plugin marketplace add hamzafer/claude-routines
+
+# 2. Install the routines plugin from it
+/plugin install routines@claude-routines
+```
+
+After install, all 13 skills are available as `/routines:list`, `/routines:deploy`, `/routines:diff`, etc. Natural language also works: "list my routines", "deploy this file", "diff routines/foo.md".
+
+### Other agents (Cursor, Copilot, Gemini, etc.) via skills.sh
+
 ```bash
 npx skills add hamzafer/claude-routines -g
 ```
 
-That's it. The skills land in `~/.claude/skills/` and Claude Code picks them up on next session. No repo to clone, no working directory to maintain.
+Drops the skills into `~/.agents/skills/` with flat names (e.g. `list`, `deploy`). The Claude Code plugin path above gives nicer `routines:`-prefixed names; the skills.sh path is the cross-agent route.
 
 ## What's a routine
 

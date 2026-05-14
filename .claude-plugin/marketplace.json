@@ -1,0 +1,18 @@
+{
+  "name": "claude-routines",
+  "description": "Marketplace for the routines plugin: manage Claude Code Routines as code.",
+  "owner": {
+    "name": "Hamza Zafar"
+  },
+  "plugins": [
+    {
+      "name": "routines",
+      "description": "Manage Claude Code Routines as code. Edit .md files, ask Claude to deploy them.",
+      "version": "1.0.0",
+      "source": "./",
+      "author": {
+        "name": "Hamza Zafar"
+      }
+    }
+  ]
+}
