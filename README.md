@@ -51,10 +51,10 @@ Review every PR opened in the last 24 hours. Leave inline comments...
 
 ## Skills
 
-**Read state.** `list`, `get`, `pull`, `diff`, `orphans`
-**Write changes.** `deploy` (auto-routes), `create`, `update` (read-modify-write safe)
-**Pre-flight.** `validate`, `dry-run`
-**Other.** `run`, `bulk`, `delete`
+- **Read state:** `list`, `get`, `pull`, `diff`, `orphans`
+- **Write changes:** `deploy` (auto-routes), `create`, `update` (read-modify-write safe)
+- **Pre-flight:** `validate`, `dry-run`
+- **Other:** `run`, `bulk`, `delete`
 
 Each activates by intent (`"validate this file"`) or by name (`/routines:validate <file>`).
 
