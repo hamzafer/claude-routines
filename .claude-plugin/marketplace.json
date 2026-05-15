@@ -10,9 +10,25 @@
       "description": "Manage Claude Code Routines as code. Edit .md files, ask Claude to deploy them.",
       "version": "1.0.0",
       "source": "./",
+      "strict": false,
       "author": {
         "name": "Hamza Zafar"
-      }
+      },
+      "skills": [
+        "./skills/bulk",
+        "./skills/create",
+        "./skills/delete",
+        "./skills/deploy",
+        "./skills/diff",
+        "./skills/dry-run",
+        "./skills/get",
+        "./skills/list",
+        "./skills/orphans",
+        "./skills/pull",
+        "./skills/run",
+        "./skills/update",
+        "./skills/validate"
+      ]
     }
   ]
 }
